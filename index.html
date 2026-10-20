@@ -167,7 +167,7 @@ const KEY='sb_publishable_sAj8tle9l85JEXVmOvLvMg_wZ4T-mHD';
 const PRESIDENT='95fcc8a4-1b6c-4942-955f-240d923904a8';
 const ISABEL='9e074b21-8f3c-4584-a58e-dc7487448b57';
 const sb=createClient(URL,KEY,{auth:{persistSession:true,autoRefreshToken:true}});
-const VAPID_PUBLIC_KEY='BK37BVtlaC4m6TDg9i1N3_S2zO1vm5mgOq_Pg_JiCg_1A31O1mpiGZGTxLigBkOe1a3LJBNKaRphBvnWU-MmS4k';
+const VAPID_PUBLIC_KEY='BOSm4weG4kTUgjwMXXu_ywt5Cg8cKDhVQxDL4LNqCIrhZDiqzbQVBvtLJ1ndaGTxsfZwBWKsP1uCxvY5Xen-WMY';
 const PUSH_FN=URL+'/functions/v1/notificacoes-anp';
 function decodeVapid(key){
   const padding='='.repeat((4-key.length%4)%4);
@@ -184,7 +184,7 @@ async function enablePush(){
     if(window.matchMedia('(display-mode: standalone)').matches===false && /iPad|iPhone|iPod/.test(navigator.userAgent))throw Error('No iPhone, abre a ANP pelo ícone do ecrã principal (Partilhar → Adicionar ao ecrã principal).');
     const permission=await Notification.requestPermission();
     if(permission!=='granted')throw Error('As notificações não foram autorizadas.');
-    const registration=await navigator.serviceWorker.register('./sw.js');
+    const registration=await navigator.serviceWorker.register('./sw.js?v=push-v3');
     const ready=await navigator.serviceWorker.ready;
     let subscription=await ready.pushManager.getSubscription();
     if(subscription){
@@ -199,26 +199,27 @@ async function enablePush(){
     const data=subscription.toJSON();
     const {error}=await sb.from('subscricoes_push').upsert({utilizador_id:user.id,endpoint:subscription.endpoint,subscricao:data},{onConflict:'endpoint'});
     if(error)throw error;
-    status.textContent='🔔 Notificações ativadas neste dispositivo.';
+    status.textContent='🔔 Dispositivo registado. Os avisos chegam quando o serviço de envio estiver configurado no Supabase.';
   }catch(e){status.textContent='Não foi possível ativar: '+(e?.message||String(e));}
   finally{button.disabled=false;}
 }
-async function pushEvent(tipo,statusId='pushSendStatus'){
+async function pushEvent(tipo,statusId='pushSendStatus',eventoId=null){
   const status=document.getElementById(statusId);
   if(status)status.textContent='🔔 A verificar o envio da notificação…';
   try{
     const {data:{session},error:sessionError}=await sb.auth.getSession();
     if(sessionError||!session?.access_token)throw Error('Sessão expirada. Volta a entrar na ANP.');
-    const response=await fetch(PUSH_FN,{method:'POST',headers:{'Authorization':'Bearer '+session.access_token,'apikey':KEY,'Content-Type':'application/json'},body:JSON.stringify({tipo})});
+    if(!eventoId)throw Error('Não foi possível identificar o pedido ou a resposta.');
+    const response=await fetch(PUSH_FN,{method:'POST',headers:{'Authorization':'Bearer '+session.access_token,'apikey':KEY,'Content-Type':'application/json'},body:JSON.stringify({tipo,evento_id:eventoId})});
     const raw=await response.text();
     let result;
     try{result=JSON.parse(raw);}catch{result={error:raw.slice(0,250)}}
     if(!response.ok)throw Error('HTTP '+response.status+': '+(result.error||result.mensagem||'Falha na função'));
     if(typeof result.enviadas==='number'){
-      if(status)status.textContent='🔔 Notificações enviadas: '+result.enviadas+'.'+(result.enviadas===0?' Verifica se o destinatário ativou as notificações.':'');
+      if(status)status.textContent=result.enviadas>0?'🔔 Aviso enviado para '+result.enviadas+' dispositivo(s).':'ℹ️ Pedido guardado. A outra pessoa precisa de ativar as notificações no seu telemóvel.';
     }else if(status)status.textContent='🔔 Função respondeu, mas não confirmou quantas notificações enviou.';
   }catch(e){
-    if(status)status.textContent='⚠️ Notificação não enviada: '+(e?.message||String(e));
+    if(status)status.textContent='⚠️ Pedido ou resposta guardado, mas o aviso automático falhou. '+(e instanceof TypeError?'O serviço de notificações do Supabase está inacessível ou sem CORS.':(e?.message||String(e)));
     console.warn('Push indisponível:',e);
   }
 }
@@ -435,10 +436,10 @@ async function load(){
      button.disabled=true;status.textContent='A enviar…';
      try{
        const mensagem=body;
-       const {error}=await sb.from('comunicados').insert({autor_id:user.id,titulo:'💬 RESPOSTA — '+procNum(a),mensagem,emergencia_id:a.id});
+       const {data:criada,error}=await sb.from('comunicados').insert({autor_id:user.id,titulo:'💬 RESPOSTA — '+procNum(a),mensagem,emergencia_id:a.id}).select('id').single();
        if(error)throw error;
        parecerRascunhos.delete(a.id);field.value='';editor.hidden=true;status.textContent='✓ Resposta enviada!';
-       await load();void pushEvent('parecer','replyPushStatus');
+       await load();void pushEvent('parecer','replyPushStatus',criada.id);
      }catch(e){status.textContent='Não foi possível enviar: '+friendly(e)}finally{button.disabled=false;}
    };
    editor.append(label,field,button,status);if(previous.length)wrap.append(quick);wrap.append(editor);incoming.append(wrap);
@@ -450,7 +451,7 @@ async function load(){
 async function render(){const {data:{user:u}}=await sb.auth.getUser();user=u&&[PRESIDENT,ISABEL].includes(u.id)?u:null;document.body.classList.toggle('role-president',user?.id===PRESIDENT);document.body.classList.toggle('role-isabel',user?.id===ISABEL);$('access').classList.toggle('hide',!!user);$('app').classList.toggle('hide',!user);$('presidency').classList.toggle('hide',user?.id!==PRESIDENT);$('panic').disabled=!user;$('panic').textContent=user?.id===PRESIDENT?'🚨 A PRESIDÊNCIA ESTÁ NA MERDA':'🚨 ESTOU NA MERDA';$('dashSosLabel').textContent=user?.id===PRESIDENT?'A PRESIDÊNCIA ESTÁ NA MERDA!':'ESTOU NA MERDA!';$('dashSosHelp').textContent=user?.id===PRESIDENT?'Pedir socorro à Dr.ª Matos':'Pedir socorro à Presidente Mancha';setEmergencyLevels();updateLevelPreview();if(user){$('pushStatus').textContent=('Notification' in window && Notification.permission==='granted')?'Permissão concedida. Carrega em Ativar para registar este dispositivo.':'Carrega em Ativar notificações neste dispositivo.';$('who').textContent=user.id===PRESIDENT?'Sessão: Presidência':'Sessão: Dr.ª Matos';await load();}else if(u){$('loginStatus').textContent='Esta conta não tem acesso à ANP.';await sb.auth.signOut();}}
 $('signIn').onclick=async()=>{$('signIn').disabled=true;$('loginStatus').textContent='A entrar…';try{const {error}=await sb.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});if(error)throw error;$('password').value='';$('loginStatus').textContent='';await render();}catch(e){$('loginStatus').textContent='Não foi possível entrar: '+friendly(e)}finally{$('signIn').disabled=false}};
 $('logout').onclick=async()=>{await sb.auth.signOut();user=null;$('password').value='';await render()};
-$('panic').onclick=async()=>{if(!user||busy)return;busy=true;$('panic').disabled=true;let i=Math.floor(Math.random()*replies.length);if(i===last)i=(i+1)%replies.length;last=i;let response=replies[i];$('resposta').textContent=response;$('resposta').classList.remove('hide');$('panicStatus').textContent=user.id===PRESIDENT?'A comunicar com a Dr.ª Matos…':'A comunicar com a Presidência…';try{const note=$('incidentNote').value.trim();const mensagem='[NÍVEL '+$('level').value+'] 🚨 CÓDIGO CASTANHO — '+(user.id===PRESIDENT?'A Presidência solicita ajuda à Dr.ª Matos.':'Dr.ª Matos solicita intervenção da Presidência.')+(note?'\n[RELATO] '+note:'');const {error}=await sb.from('emergencias').insert({utilizador_id:user.id,mensagem});if(error)throw error;$('incidentNote').value='';$('panicStatus').textContent='🚨 Pedido registado! '+(user.id===PRESIDENT?'A Dr.ª Matos':'A Presidência')+' verá o teu nível de fartura na ANP.';await load();void pushEvent('emergencia');}catch(e){$('panicStatus').textContent='O alerta não foi enviado: '+friendly(e)}finally{busy=false;$('panic').disabled=false}};
+$('panic').onclick=async()=>{if(!user||busy)return;busy=true;$('panic').disabled=true;let i=Math.floor(Math.random()*replies.length);if(i===last)i=(i+1)%replies.length;last=i;let response=replies[i];$('resposta').textContent=response;$('resposta').classList.remove('hide');$('panicStatus').textContent=user.id===PRESIDENT?'A comunicar com a Dr.ª Matos…':'A comunicar com a Presidência…';try{const note=$('incidentNote').value.trim();const mensagem='[NÍVEL '+$('level').value+'] 🚨 CÓDIGO CASTANHO — '+(user.id===PRESIDENT?'A Presidência solicita ajuda à Dr.ª Matos.':'Dr.ª Matos solicita intervenção da Presidência.')+(note?'\n[RELATO] '+note:'');const {data:criada,error}=await sb.from('emergencias').insert({utilizador_id:user.id,mensagem}).select('id').single();if(error)throw error;$('incidentNote').value='';$('panicStatus').textContent='🚨 Pedido registado! '+(user.id===PRESIDENT?'A Dr.ª Matos':'A Presidência')+' verá o teu nível de fartura na ANP.';await load();void pushEvent('emergencia','pushSendStatus',criada.id);}catch(e){$('panicStatus').textContent='O alerta não foi enviado: '+friendly(e)}finally{busy=false;$('panic').disabled=false}};
 $('updateIsabelPassword').onclick=async()=>{
   if(user?.id!==PRESIDENT)return;
   const password=$('newIsabelPassword').value;
@@ -476,7 +477,7 @@ $('dashGoEmergency').onclick=()=>showView('emergency');
 $('dashSos').onclick=()=>{showView('emergency');setTimeout(()=>document.getElementById('level').focus({preventScroll:true}),100);};
 $('enablePush').onclick=enablePush;
 $('refresh').onclick=load;
-if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').catch(console.warn);
+if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js?v=push-v3').catch(console.warn);
 function showView(id){
  const valid=['dashboard','requests','emergency','awardsSection'];
  if(!valid.includes(id))id='dashboard';
@@ -491,6 +492,6 @@ function showView(id){
 document.querySelectorAll('.anp-menu a[href^="#"]').forEach(link=>link.addEventListener('click',event=>{
  event.preventDefault();showView(link.getAttribute('href').slice(1));
 }));
-showView('dashboard');await render();setInterval(()=>{if(user&&document.visibilityState==='visible')load()},15000);setInterval(updateGreeting,30000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)updateGreeting()});
+showView(location.hash==='#requests'?'requests':'dashboard');await render();setInterval(()=>{if(user&&document.visibilityState==='visible')load()},15000);setInterval(updateGreeting,30000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)updateGreeting()});
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&user)load()});
 </script></body></html>

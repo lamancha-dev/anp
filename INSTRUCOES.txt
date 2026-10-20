@@ -1,13 +1,13 @@
-ANP — ÍCONE CORRIGIDO (FUNDO VERDE ATÉ AOS QUATRO CANTOS)
+ANP — CORREÇÃO DAS NOTIFICAÇÕES
 
-Todos os ícones têm agora fundo verde OPACO, sem transparência e sem cantos brancos.
+ESTE ZIP É APENAS PARA O GITHUB PAGES (FICHEIROS PÚBLICOS).
 
-1. Extrai este ZIP.
-2. Em https://github.com/lamancha-dev/anp clica Add file > Upload files.
-3. Arrasta os 8 ficheiros da pasta extraída (não o ZIP).
-4. Clica Commit changes.
-5. Aguarda a publicação no GitHub Pages.
-6. No Android, remove o atalho/app ANP antigo se existir.
-7. Abre https://lamancha-dev.github.io/anp/ no Chrome e instala.
+1. Extrair este ZIP.
+2. Abrir https://github.com/lamancha-dev/anp
+3. Add file > Upload files > arrastar os ficheiros extraídos > Commit changes.
+4. NÃO carregar o ZIP privado do Supabase para o GitHub.
+5. Configurar o Supabase com os ficheiros privados fornecidos separadamente.
+6. Reativar notificações em ambos os telemóveis.
 
-Se o Chrome continuar a mostrar o ícone antigo, limpa os dados do site github.io no Chrome antes de tentar novamente.
+O envio de avisos quando a ANP está fechada exige a função do Supabase.
+A publicação no GitHub, por si só, NÃO corrige o servidor de notificações.
