@@ -11,19 +11,19 @@
   "lang": "pt-PT",
   "icons": [
     {
-      "src": "./anp-192.png",
+      "src": "./anp-192.png?v=verde-sem-cantos-2",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "./anp-512.png",
+      "src": "./anp-512.png?v=verde-sem-cantos-2",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "./anp-maskable-512.png",
+      "src": "./anp-maskable-512.png?v=verde-sem-cantos-2",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"

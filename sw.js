@@ -16,7 +16,7 @@ self.addEventListener('notificationclick', event => {
 });
 
 // Cache limitado aos ficheiros da aplicação, sem guardar dados privados nem pedidos.
-const ANP_CACHE='anp-shell-v1';
+const ANP_CACHE='anp-shell-v2-verde';
 const ANP_SHELL=['./index.html','./manifest.webmanifest','./favicon.png','./anp-192.png','./anp-512.png','./anp-maskable-512.png'];
 self.addEventListener('install',event=>{
   event.waitUntil(caches.open(ANP_CACHE).then(cache=>cache.addAll(ANP_SHELL)).then(()=>self.skipWaiting()));

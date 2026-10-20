@@ -1,12 +1,13 @@
-ANP — PACOTE COMPLETO PARA GITHUB PAGES / ANDROID
+ANP — ÍCONE CORRIGIDO (FUNDO VERDE ATÉ AOS QUATRO CANTOS)
 
-1. Extrai o ZIP no computador.
-2. No repositório github.com/lamancha-dev/anp, clica Add file > Upload files.
-3. Seleciona TODOS OS 9 FICHEIROS dentro da pasta extraída, não a pasta nem o ZIP.
-4. Clica Commit changes. Não apagues o repositório.
-5. Aguarda que Settings > Pages indique publicação concluída.
-6. No Android, abre o endereço https://lamancha-dev.github.io/anp/ diretamente no Chrome (não no navegador interno do ChatGPT).
-7. Menu ⋮ > Instalar aplicação. Se houver versão antiga/atalho, remove-a antes de tentar novamente.
+Todos os ícones têm agora fundo verde OPACO, sem transparência e sem cantos brancos.
 
-Todos os ficheiros devem ficar na RAIZ do repositório; NÃO é necessária pasta icons.
-Não modifica dados Supabase, contas, pedidos, medalhas ou diplomas.
+1. Extrai este ZIP.
+2. Em https://github.com/lamancha-dev/anp clica Add file > Upload files.
+3. Arrasta os 8 ficheiros da pasta extraída (não o ZIP).
+4. Clica Commit changes.
+5. Aguarda a publicação no GitHub Pages.
+6. No Android, remove o atalho/app ANP antigo se existir.
+7. Abre https://lamancha-dev.github.io/anp/ no Chrome e instala.
+
+Se o Chrome continuar a mostrar o ícone antigo, limpa os dados do site github.io no Chrome antes de tentar novamente.
