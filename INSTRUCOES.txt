@@ -1,0 +1,9 @@
+ANP — GitHub Pages / Android
+
+1. No repositório lamancha-dev/anp, substitui o index.html, manifest.webmanifest, sw.js e favicon.png pelos ficheiros desta pasta.
+2. Cria a pasta icons na raiz do repositório e carrega nela os 3 PNG.
+3. Aguarda a publicação do GitHub Pages.
+4. No Chrome Android, abre https://lamancha-dev.github.io/anp/ e usa ⋮ > Adicionar ao ecrã principal > Instalar.
+5. Se já houver atalho antigo, remove-o antes de voltar a instalar.
+
+A base de dados Supabase não foi alterada.
