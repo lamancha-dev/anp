@@ -1,0 +1,32 @@
+{
+  "name": "ANP — Autoridade Nacional da Parvoeira",
+  "short_name": "ANP",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#edf0ef",
+  "theme_color": "#183b37",
+  "id": "./index.html",
+  "description": "Autoridade Nacional da Parvoeira — pedidos de ajuda, respostas, medalhas e ranking.",
+  "scope": "./",
+  "lang": "pt-PT",
+  "icons": [
+    {
+      "src": "./anp-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./anp-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./anp-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+ANP — PACOTE COMPLETO PARA GITHUB PAGES / ANDROID
+
+1. Extrai o ZIP no computador.
+2. No repositório github.com/lamancha-dev/anp, clica Add file > Upload files.
+3. Seleciona TODOS OS 9 FICHEIROS dentro da pasta extraída, não a pasta nem o ZIP.
+4. Clica Commit changes. Não apagues o repositório.
+5. Aguarda que Settings > Pages indique publicação concluída.
+6. No Android, abre o endereço https://lamancha-dev.github.io/anp/ diretamente no Chrome (não no navegador interno do ChatGPT).
+7. Menu ⋮ > Instalar aplicação. Se houver versão antiga/atalho, remove-a antes de tentar novamente.
+
+Todos os ficheiros devem ficar na RAIZ do repositório; NÃO é necessária pasta icons.
+Não modifica dados Supabase, contas, pedidos, medalhas ou diplomas.
